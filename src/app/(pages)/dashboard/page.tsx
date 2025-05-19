@@ -5,18 +5,16 @@ import {
 	IconButton,
 	ToggleButton,
 	Typography,
-	Checkbox,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
 import {
 	StyledToggleButtonGroup,
 	StyledList,
-	StyledListItem,
 	HorizontalFlex,
 } from './styled-components';
 import { useState } from 'react';
 import { ITask } from './interfaces';
+import TaskListItem from './TaskListItem';
 let incrementalId = 1;
 
 export default function DashboardView() {
@@ -35,6 +33,14 @@ export default function DashboardView() {
 		};
 		setTasks([...tasks, newTaskObj]);
 		incrementalId++;
+	};
+
+	const completeTask = (id: number) => {
+		setTasks((prevTasks) =>
+			prevTasks.map((task) =>
+				task.id === id ? { ...task, isCompleted: true } : task
+			)
+		);
 	};
 
 	return (
@@ -105,53 +111,7 @@ export default function DashboardView() {
 					</HorizontalFlex>
 					<StyledList className='bg-white rounded-2 shadow-1'>
 						{tasks.map((task) => (
-							<StyledListItem
-								key={task.id}
-								className='border-bottom-light'
-								sx={{ opacity: task.isCompleted ? 0.6 : 1 }}
-								secondaryAction={
-									<HorizontalFlex>
-										<Typography
-											variant='body2'
-											className='text-secondary'
-											sx={{
-												mr: 2,
-												minWidth: 70,
-												display: 'inline-block',
-												textAlign: 'right',
-											}}
-										>
-											{task.createdAt.getDate()}
-										</Typography>
-										<IconButton
-											edge='end'
-											aria-label='delete'
-											onClick={() => {
-												console.log('TODO');
-											}}
-										>
-											<DeleteIcon fontSize='small' />
-										</IconButton>
-									</HorizontalFlex>
-								}
-							>
-								<Checkbox
-									checked={task.isCompleted}
-									onChange={() => {
-										console.log('TODO');
-									}}
-									sx={{
-										color: '#635bff',
-										'&.Mui-checked': { color: '#635bff' },
-									}}
-								/>
-								<Typography
-									variant='body1'
-									className='font-medium text-primary'
-								>
-									{task.content}
-								</Typography>
-							</StyledListItem>
+							<TaskListItem key={task.id} task={task} onToggle={completeTask} />
 						))}
 					</StyledList>
 				</Box>
