@@ -15,11 +15,15 @@ import {
 import { useState } from 'react';
 import { ITask } from './interfaces';
 import TaskListItem from './TaskListItem';
+import { ETaskFilter } from './enums';
 let incrementalId = 1;
 
 export default function DashboardView() {
-	const [tasks, setTasks] = useState([] as ITask[]);
+	const [tasks, setTasks] = useState<ITask[]>([]);
 	const [newTaskContent, setNewTaskContent] = useState('');
+	const [search, setSearch] = useState('');
+	const [filter, setFilter] = useState<ETaskFilter>(ETaskFilter.ALL);
+
 	const totalTasks = tasks.length;
 	const completedTasks = tasks.filter((t) => t.isCompleted).length;
 
@@ -47,6 +51,32 @@ export default function DashboardView() {
 		setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
 	};
 
+	const handleFilter = (
+		_event: React.MouseEvent<HTMLElement>,
+		value: ETaskFilter
+	) => {
+		if (!value) return;
+		setFilter(value);
+	};
+
+	const filteredTasks = (() => {
+		let filteredTasks = [];
+		switch (filter) {
+			case ETaskFilter.COMPLETED:
+				filteredTasks = tasks.filter((task) => task.isCompleted);
+				break;
+			case ETaskFilter.INCOMPLETE:
+				filteredTasks = tasks.filter((task) => !task.isCompleted);
+				break;
+			case ETaskFilter.ALL:
+			default:
+				filteredTasks = tasks;
+		}
+		return filteredTasks.filter((task) =>
+			task.content.toLowerCase().includes(search.toLowerCase())
+		);
+	})();
+
 	return (
 		<Box className='bg-fafbfc' sx={{ minHeight: '100vh' }}>
 			<Box className='max-w-1200 mt-4 px-3' sx={{ mx: 'auto' }}>
@@ -62,6 +92,8 @@ export default function DashboardView() {
 						fullWidth
 						placeholder='Search tasks...'
 						variant='outlined'
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
 					/>
 				</Box>
 				<Box className='bg-white rounded-2 shadow-1 p-4 mt-2 p-30'>
@@ -102,19 +134,21 @@ export default function DashboardView() {
 					</Box>
 					<HorizontalFlex>
 						<StyledToggleButtonGroup
-							value={'all'}
+							value={filter}
 							exclusive
-							onChange={() => {
-								console.log('TODO');
-							}}
+							onChange={handleFilter}
 						>
-							<ToggleButton value='all'>Todas</ToggleButton>
-							<ToggleButton value='incomplete'>Incompletas</ToggleButton>
-							<ToggleButton value='completed'>Completas</ToggleButton>
+							<ToggleButton value={ETaskFilter.ALL}>Todas</ToggleButton>
+							<ToggleButton value={ETaskFilter.INCOMPLETE}>
+								Incompletas
+							</ToggleButton>
+							<ToggleButton value={ETaskFilter.COMPLETED}>
+								Completas
+							</ToggleButton>
 						</StyledToggleButtonGroup>
 					</HorizontalFlex>
 					<StyledList className='bg-white rounded-2 shadow-1'>
-						{tasks.map((task) => (
+						{filteredTasks.map((task) => (
 							<TaskListItem
 								key={task.id}
 								task={task}
