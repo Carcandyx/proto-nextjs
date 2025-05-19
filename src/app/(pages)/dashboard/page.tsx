@@ -43,6 +43,10 @@ export default function DashboardView() {
 		);
 	};
 
+	const deleteTask = (id: number) => {
+		setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+	};
+
 	return (
 		<Box className='bg-fafbfc' sx={{ minHeight: '100vh' }}>
 			<Box className='max-w-1200 mt-4 px-3' sx={{ mx: 'auto' }}>
@@ -111,7 +115,12 @@ export default function DashboardView() {
 					</HorizontalFlex>
 					<StyledList className='bg-white rounded-2 shadow-1'>
 						{tasks.map((task) => (
-							<TaskListItem key={task.id} task={task} onToggle={completeTask} />
+							<TaskListItem
+								key={task.id}
+								task={task}
+								onToggle={completeTask}
+								onDelete={deleteTask}
+							/>
 						))}
 					</StyledList>
 				</Box>

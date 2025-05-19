@@ -6,7 +6,7 @@ import { ITask } from './interfaces';
 interface TaskListItemProps {
 	task: ITask;
 	onToggle: (id: number) => void;
-	onDelete?: () => void;
+	onDelete: (id: number) => void;
 }
 
 export default function TaskListItem({
@@ -32,7 +32,11 @@ export default function TaskListItem({
 					>
 						{task.createdAt.toDateString()}
 					</Typography>
-					<IconButton edge='end' aria-label='delete' onClick={onDelete}>
+					<IconButton
+						edge='end'
+						aria-label='delete'
+						onClick={() => onDelete(task.id)}
+					>
 						<DeleteIcon fontSize='small' />
 					</IconButton>
 				</HorizontalFlex>
