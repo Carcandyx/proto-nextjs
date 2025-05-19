@@ -15,15 +15,27 @@ import {
 	StyledListItem,
 	HorizontalFlex,
 } from './styled-components';
+import { useState } from 'react';
+import { ITask } from './interfaces';
+let incrementalId = 1;
 
 export default function DashboardView() {
-	const tasks = [
-		{ id: 1, text: 'Tarea 1', completed: true, time: '10:30 AM' },
-		{ id: 2, text: 'Tarea 2', completed: false, time: '2:00 PM' },
-		{ id: 3, text: 'Tarea 3', completed: false, time: '4:30 PM' },
-	];
+	const [tasks, setTasks] = useState([] as ITask[]);
+	const [newTaskContent, setNewTaskContent] = useState('');
 	const totalTasks = tasks.length;
-	const completedTasks = tasks.filter((t) => t.completed).length;
+	const completedTasks = tasks.filter((t) => t.isCompleted).length;
+
+	const createTask = (taskContent: string) => {
+		if (!taskContent.trim()) return;
+		const newTaskObj = {
+			id: incrementalId,
+			content: taskContent,
+			isCompleted: false,
+			createdAt: new Date(),
+		};
+		setTasks([...tasks, newTaskObj]);
+		incrementalId++;
+	};
 
 	return (
 		<Box className='bg-fafbfc' sx={{ minHeight: '100vh' }}>
@@ -43,19 +55,30 @@ export default function DashboardView() {
 					/>
 				</Box>
 				<Box className='bg-white rounded-2 shadow-1 p-4 mt-2 p-30'>
-					<Box className='mb-3' sx={{ display: 'flex', alignItems: 'center' }}>
+					<Box
+						onSubmit={(event) => {
+							event.preventDefault();
+							createTask(newTaskContent);
+							setNewTaskContent('');
+						}}
+						component='form'
+						className='mb-3'
+						sx={{ display: 'flex', alignItems: 'center' }}
+					>
 						<TextField
 							fullWidth
 							variant='outlined'
-							placeholder='Introduzca una nueva tarea'
-							value={''}
+							label='Introduzca una nueva tarea'
 							className='bg-white rounded-2'
 							size='small'
+							value={newTaskContent}
+							onChange={(e) => setNewTaskContent(e.target.value)}
 						/>
 						<IconButton
 							color='primary'
 							onClick={() => {
-								console.log('TODO');
+								createTask(newTaskContent);
+								setNewTaskContent('');
 							}}
 							sx={{
 								ml: 2,
@@ -85,7 +108,7 @@ export default function DashboardView() {
 							<StyledListItem
 								key={task.id}
 								className='border-bottom-light'
-								sx={{ opacity: task.completed ? 0.6 : 1 }}
+								sx={{ opacity: task.isCompleted ? 0.6 : 1 }}
 								secondaryAction={
 									<HorizontalFlex>
 										<Typography
@@ -98,7 +121,7 @@ export default function DashboardView() {
 												textAlign: 'right',
 											}}
 										>
-											{task.time}
+											{task.createdAt.getDate()}
 										</Typography>
 										<IconButton
 											edge='end'
@@ -113,7 +136,7 @@ export default function DashboardView() {
 								}
 							>
 								<Checkbox
-									checked={task.completed}
+									checked={task.isCompleted}
 									onChange={() => {
 										console.log('TODO');
 									}}
@@ -126,7 +149,7 @@ export default function DashboardView() {
 									variant='body1'
 									className='font-medium text-primary'
 								>
-									{task.text}
+									{task.content}
 								</Typography>
 							</StyledListItem>
 						))}
